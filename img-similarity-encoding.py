@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy
+from numpy.linalg import norm
 from tqdm import tqdm, tqdm_notebook
 import os
 import time
