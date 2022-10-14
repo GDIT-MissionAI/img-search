@@ -1,24 +1,19 @@
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from nltk import sent_tokenize
+import tensorflow as tf
+from tensorflow import keras
+import numpy
+from tqdm import tqdm, tqdm_notebook
+import os
+import time
 import pickle
-from sentence_transformers import SentenceTransformer
 import json
 import boto3
 import botocore
 import base64
 from base64 import b64encode
-import os
-os.environ['TRANSFORMERS_CACHE'] = '/tmp'
 
 #load clients
 s3Client = boto3.client('s3')
 
-#load pipeline
-model = SentenceTransformer('model/')
-
-#load clients
-s3Client = boto3.client('s3')
 
 # Takes any "Context" given as input and vectorizes it.
 # The routine here is a central place where vectorization routines for search & content can be centrally adjusted. Results are often presisted,
