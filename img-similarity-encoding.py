@@ -1,5 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
 import numpy
 from numpy.linalg import norm
 from tqdm import tqdm, tqdm_notebook
@@ -7,10 +9,15 @@ import os
 import time
 import pickle
 import json
+from json import JSONEncoder
 import boto3
 import botocore
 import base64
 from base64 import b64encode
+import urllib.parse
+from datetime import datetime
+from io import BytesIO
+from io import StringIO
 
 #load clients
 s3Client = boto3.client('s3')
@@ -25,16 +32,8 @@ def lambda_handler(event, context):
     sBucket = event.get("Bucket")
     sKey = event.get("Key")
     sContext = readObject(sBucket, sKey)
-        
-    if (sContext != ""):
-        bVector = Vectorize(sContext)
-        print(type(bVector))
-        print(bVector)
-        sVector = str(bVector)
-        print(type(sVector))
-        print(sVector)
-        sVector =  sVector.strip("\"")
-        print(sVector)
+    
+    
     
     return {
         'statusCode': 200,
