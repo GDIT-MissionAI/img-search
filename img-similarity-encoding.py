@@ -21,13 +21,10 @@ s3Client = boto3.client('s3')
 # so content will typically need to be reprocessed to get latest vectors should the vector routine or content change.
 def lambda_handler(event, context):
     print(json.dumps(event))
-    sContext = event.get("Context")
-    print(sContext)
     
-#    if (sContext == ""):
-#        sBucket = event.get("Bucket")
-#        sKey = event.get("Key")
-#        sContext = readObject(sBucket, sKey)
+    sBucket = event.get("Bucket")
+    sKey = event.get("Key")
+    sContext = readObject(sBucket, sKey)
         
     if (sContext != ""):
         bVector = Vectorize(sContext)
@@ -49,7 +46,9 @@ def lambda_handler(event, context):
     
 #Read from S3
 def readObject(sBucket, sKey):
-  return s3Client.get_object(Bucket=sBucket, Key=sKey)['Body'].read().decode('utf-8')
+    byteString = s3Client.get_object(Bucket=sBucket, Key=sKey)['Body'].read() #grab the s3 object.
+    bytesImg = BytesIO(byteString) #pull bytes
+    tmppilImage = Image.open(bytesImg) #get me an image from the bytes.
 
 def Vectorize(sContent):
     # convert document to vector of word embeddings
