@@ -1,8 +1,9 @@
+import PIL
+import PIL.Image
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
-from keras.preprocessing.image import load_img
+from tensorflow.keras.utils import load_img
 import numpy
 from numpy.linalg import norm
 from tqdm import tqdm, tqdm_notebook
