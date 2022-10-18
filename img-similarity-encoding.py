@@ -20,8 +20,14 @@ from datetime import datetime
 from io import BytesIO
 from io import StringIO
 
+#load environment variables
+sEventBusName = os.environ['EventBus_Name']
+sImageFeaturesTableName = os.environ['ImageFeaturesTable']
+
 #load clients
 s3Client = boto3.client('s3')
+dbResource = boto3.resource('dynamodb')
+clientEvents = boto3.client('events')
 
 
 # Takes any "Context" given as input and vectorizes it.
@@ -30,21 +36,28 @@ s3Client = boto3.client('s3')
 def lambda_handler(event, context):
     print(json.dumps(event))
     
-    sBucket = event.get("Bucket")
-    sKey = event.get("Key")
+    sAssetId = event["detail"]["AssetId"]
+    sBucket = event["detail"]["AssetStorageBucket"]
+    sKey = event["detail"]["AssetStorageKey"]
+    
+    #use if we make this independently invokable.
+    #event.get("Bucket")
+    #event.get("Key")
     
     #returns PIL img
     pImg = readObject(sBucket, sKey)
     model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3), pooling='max')
-    imgFeatures = extract_features(pImg, model)
-    
+    imgFeatures = extract_features(pImg, model) #pull features
+    sPickle = featurePickle(imgFeatures) #pickle features
+    dbResponse = storeDynamoDB(sAssetId, sPickle) #write to db
+    msgResponse = enrichmentEvent(sAssetId, sPickle) #record message
     
     return {
         'statusCode': 200,
         'headers': {
             'Access-Control-Allow-Origin': '*'
         },
-        'body': sVector #return answers to caller
+        'body': json.dumps('Processed Image Features!')
     }
     
 #Read from S3
@@ -68,14 +81,51 @@ def extract_features(img, model):
     normalized_features = flattened_features / norm(flattened_features)
     return normalized_features    
     
-def Pickle(features):
+def featurePickle(features):
     # convert document to vector of word embeddings
     print("Features")
     print(features)
     serialized_embedding = base64.b64encode(pickle.dumps(features, protocol=5))
     return serialized_embedding
 
-def storeDynamoDB(SerializedContent):
+def storeDynamoDB(sAssetId, SerializedContent):
+    table = dbResource.Table(sAssetFormatsTableName)
+    responseDynamoDB = table.put_item(
+        Item={
+            "AssetId": sAssetId,
+            "Pickled": SerializedContent
+        }
+        )
+    return responseDynamoDB
+
+class DateTimeEncoder(JSONEncoder):
+        #Override the default method
+        def default(self, obj):
+            if isinstance(obj, (datetime)):
+                return obj.isoformat()
+
+#Write the event to the event bridge. It will kickoff other.
+def enrichmentEvent(sAssetId, sPickle):
+    appEvent = {
+        "AssetId": sAssetId,
+        "Pickle": sPickle
+    }
     
+    bridgeEvent = {
+        'EventBusName':sEventBusName,
+        'Time': datetime.utcnow(),
+        'Source':'gdit.missionai',
+        'Resources' : [],
+        'DetailType':'ImageFeatures',
+        'Detail': json.dumps(appEvent, indent=4, cls=DateTimeEncoder)
+    }
     
-    
+    # Send event to EventBridge
+    responseEventPublish = clientEvents.put_events(
+        Entries=[
+            bridgeEvent
+            ]
+    )
+    print(json.dumps(bridgeEvent, indent=4, cls=DateTimeEncoder))
+#    print(responseEventPublish)
+    return responseEventPublish #allow caller to determine whether to use response id or not.
