@@ -32,10 +32,11 @@ def lambda_handler(event, context):
     
     sBucket = event.get("Bucket")
     sKey = event.get("Key")
-    sContext = readObject(sBucket, sKey)
     
+    #returns PIL img
+    pImg = readObject(sBucket, sKey)
     model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3), pooling='max')
-    
+    imgFeatures = extract_features(pImg, model)
     
     
     return {
@@ -50,16 +51,15 @@ def lambda_handler(event, context):
 def readObject(sBucket, sKey):
     byteString = s3Client.get_object(Bucket=sBucket, Key=sKey)['Body'].read() #grab the s3 object.
     bytesImg = BytesIO(byteString) #pull bytes
-    img =  load_img(bytesImg)
+    input_shape = (224, 224, 3)
+    img =  load_img(bytesImg, target_size=(input_shape[0], input_shape[1]))
     return(img)
 
      #object = s3.Object(bucket_name,path)
      #img = load_img(io.BytesIO(object.get()['Body'].read()))
      #return(img)
 
-def extract_features(img_path, model):
-    input_shape = (224, 224, 3)
-    img = image.load_img(img_path, target_size=(input_shape[0], input_shape[1]))
+def extract_features(img, model):
     img_array = image.img_to_array(img)
     expanded_img_array = np.expand_dims(img_array, axis=0)
     preprocessed_img = preprocess_input(expanded_img_array)
@@ -68,17 +68,14 @@ def extract_features(img_path, model):
     normalized_features = flattened_features / norm(flattened_features)
     return normalized_features    
     
-def Vectorize(sContent):
+def Pickle(features):
     # convert document to vector of word embeddings
-    sentences = sent_tokenize(sContent)
-#    print("1")
-#    print(sentences)
-    base_embeddings_sentences = model.encode(sentences)
-#    print("2")
-#    print(base_embeddings_sentences)
-    base_embeddings = np.mean(np.array(base_embeddings_sentences), axis=0)
-#    print("3")
-#    print(base_embeddings)
-#    serialized_embedding = pickle.dumps(base_embeddings) #prior code
-    serialized_embedding = base64.b64encode(pickle.dumps(base_embeddings, protocol=5))
+    print("Features")
+    print(features)
+    serialized_embedding = base64.b64encode(pickle.dumps(features, protocol=5))
     return serialized_embedding
+
+def storeDynamoDB(SerializedContent):
+    
+    
+    
