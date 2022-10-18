@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+from keras.preprocessing.image import load_img
 import numpy
 from numpy.linalg import norm
 from tqdm import tqdm, tqdm_notebook
@@ -33,6 +34,8 @@ def lambda_handler(event, context):
     sKey = event.get("Key")
     sContext = readObject(sBucket, sKey)
     
+    model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3), pooling='max')
+    
     
     
     return {
@@ -47,8 +50,24 @@ def lambda_handler(event, context):
 def readObject(sBucket, sKey):
     byteString = s3Client.get_object(Bucket=sBucket, Key=sKey)['Body'].read() #grab the s3 object.
     bytesImg = BytesIO(byteString) #pull bytes
-    tmppilImage = Image.open(bytesImg) #get me an image from the bytes.
+    img =  load_img(bytesImg)
+    return(img)
 
+     #object = s3.Object(bucket_name,path)
+     #img = load_img(io.BytesIO(object.get()['Body'].read()))
+     #return(img)
+
+def extract_features(img_path, model):
+    input_shape = (224, 224, 3)
+    img = image.load_img(img_path, target_size=(input_shape[0], input_shape[1]))
+    img_array = image.img_to_array(img)
+    expanded_img_array = np.expand_dims(img_array, axis=0)
+    preprocessed_img = preprocess_input(expanded_img_array)
+    features = model.predict(preprocessed_img)
+    flattened_features = features.flatten()
+    normalized_features = flattened_features / norm(flattened_features)
+    return normalized_features    
+    
 def Vectorize(sContent):
     # convert document to vector of word embeddings
     sentences = sent_tokenize(sContent)
