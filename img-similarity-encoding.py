@@ -50,7 +50,7 @@ def lambda_handler(event, context):
     model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3), pooling='max')
     imgFeatures = extract_features(pImg, model) #pull features
     sPickle = featurePickle(imgFeatures) #pickle features
-    dbResponse = storeDynamoDB(sAssetId, sPickle) #write to db
+    dbResponse = storeDynamoDB(sAssetId, sPickle, sImageFeaturesTableName) #write to db
     msgResponse = enrichmentEvent(sAssetId, sPickle) #record message
     
     return {
@@ -90,8 +90,8 @@ def featurePickle(features):
     serialized_embedding = base64.b64encode(pickle.dumps(features, protocol=5))
     return serialized_embedding
 
-def storeDynamoDB(sAssetId, SerializedContent):
-    table = dbResource.Table(sAssetFormatsTableName)
+def storeDynamoDB(sAssetId, SerializedContent, sImageFeaturesTableName):
+    table = dbResource.Table(sImageFeaturesTableName)
     responseDynamoDB = table.put_item(
         Item={
             "AssetId": sAssetId,
