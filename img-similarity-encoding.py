@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
 from tensorflow.keras.utils import load_img
-import numpy
+import numpy as np
 from numpy.linalg import norm
 from tqdm import tqdm, tqdm_notebook
 import os
@@ -74,7 +74,8 @@ def readObject(sBucket, sKey):
      #return(img)
 
 def extract_features(img, model):
-    img_array = Image.img_to_array(img)
+    #img_array = Image.img_to_array(img)
+    img_array = np.array(img)
     expanded_img_array = np.expand_dims(img_array, axis=0)
     preprocessed_img = preprocess_input(expanded_img_array)
     features = model.predict(preprocessed_img)
