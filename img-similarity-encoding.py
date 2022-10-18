@@ -110,6 +110,7 @@ class DateTimeEncoder(JSONEncoder):
 def enrichmentEvent(sAssetId, SerializedContent):
     print("Pickle")
     print(SerializedContent)
+    print(type(SerializedContent))
     appEvent = {
         "AssetId": sAssetId,
         "Pickle": SerializedContent
