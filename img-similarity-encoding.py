@@ -107,10 +107,12 @@ class DateTimeEncoder(JSONEncoder):
                 return obj.isoformat()
 
 #Write the event to the event bridge. It will kickoff other.
-def enrichmentEvent(sAssetId, sPickle):
+def enrichmentEvent(sAssetId, SerializedContent):
+    print("Pickle")
+    print(SerializedContent)
     appEvent = {
         "AssetId": sAssetId,
-        "Pickle": sPickle
+        "Pickle": SerializedContent
     }
     
     bridgeEvent = {
