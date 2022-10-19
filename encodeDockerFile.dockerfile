@@ -9,7 +9,7 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 RUN pip install pillow -q --target "${LAMBDA_TASK_ROOT}"
 RUN pip install tensorflow -q --target "${LAMBDA_TASK_ROOT}"
 RUN pip install numpy -q --target "${LAMBDA_TASK_ROOT}"
-RUN pip install tqdm -q --target "${LAMBDA_TASK_ROOT}"
+#RUN pip install tqdm -q --target "${LAMBDA_TASK_ROOT}"
 RUN pip install boto3 -q --target "${LAMBDA_TASK_ROOT}"
 RUN yum install curl
 
