@@ -22,6 +22,7 @@ from io import BytesIO
 from io import StringIO
 
 #load environment variables
+os.environ["CUDA_VISIBLE_DEVICES"]="-1" #only allow tensorflow to run on CPU. Waiting for a GPU enabled Lambda.
 sEventBusName = os.environ['EventBus_Name']
 sImageFeaturesTableName = os.environ['ImageFeaturesTable']
 
