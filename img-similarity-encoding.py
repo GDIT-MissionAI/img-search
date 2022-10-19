@@ -6,7 +6,7 @@ from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
 from tensorflow.keras.utils import load_img
 import numpy as np
 from numpy.linalg import norm
-from tqdm import tqdm, tqdm_notebook
+#from tqdm import tqdm, tqdm_notebook
 import os
 import time
 import pickle
