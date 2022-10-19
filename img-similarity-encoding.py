@@ -113,7 +113,7 @@ def enrichmentEvent(sAssetId, SerializedContent):
     print(type(SerializedContent))
     appEvent = {
         "AssetId": sAssetId,
-        "Pickle": SerializedContent
+        "Pickle": str(SerializedContent)
     }
     
     bridgeEvent = {
