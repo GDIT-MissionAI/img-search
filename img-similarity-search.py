@@ -20,6 +20,8 @@ dbResource = boto3.resource('dynamodb')
 
 def lambda_handler(event, context):
     print(json.dumps(event))
+    sSearchAssetId = event.get("SearchAssetId")
+    print("Search Asset Id: " + sSearchAssetId)
     
     #Search Logic
     feature_list = []
@@ -33,17 +35,28 @@ def lambda_handler(event, context):
 
     neighbors = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='euclidean').fit(feature_list)
 
-    scores_dump = base64.b64encode(pickle.dumps(feature_list))
-    img_dump = base64.b64encode(pickle.dumps(img_list))
+
     
     random_index = 75
     distances, indices = neighbors.kneighbors([feature_list[random_index]])
     
+    #debug
+    print("Distances")
+    print(distances)
+    print("Indices")
+    print(indices)
+    
+    imgs_dump = base64.b64encode(pickle.dumps(indices))
+    features_dump = base64.b64encode(pickle.dumps(feature_list))
+    distances_dump = base64.b64encode(pickle.dumps(distances))
+    indices_dump = base64.b64encode(pickle.dumps(indices))
+    
     #return the content.
     return {
         'statusCode': 200,
-        'scores' : scores_dump,
         'images' : img_dump,
+        'distances' : distances_dump,
+        'indices' : indices_dump,
         'body': json.dumps('Pickles have been created!')
     }
 
