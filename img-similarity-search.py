@@ -34,7 +34,7 @@ def lambda_handler(event, context):
         feature_list.append(DeVectorize(row["Pickle"]))
         img_list.append(row["AssetId"])
         
-        if row["AssetId"] = event.get("SearchAssetId"):
+        if row["AssetId"] == event.get("SearchAssetId"):
             iAssetIdIndex = i
         
         i = i + 1
