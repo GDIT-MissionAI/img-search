@@ -29,16 +29,19 @@ def lambda_handler(event, context):
     
     dsImgFeatures = retrievePickles(sImageFeaturesTableName)
 
+    i = 0
+    iAssetIdIndex = -1 #store index of matching Asset Id
     for row in dsImgFeatures:
         feature_list.append(DeVectorize(row["Pickle"]))
         img_list.append(row["AssetId"])
+        
+        if row["AssetId"] = event.get("SearchAssetId"):
+            iAssetIdIndex = i
+        
+        i = i + 1
 
     neighbors = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='euclidean').fit(feature_list)
-
-
-    
-    random_index = 75
-    distances, indices = neighbors.kneighbors([feature_list[random_index]])
+    distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
     
     #debug
     print("Distances")
