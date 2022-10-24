@@ -62,11 +62,6 @@ def lambda_handler(event, context):
         'body': json.dumps('Pickles have been created!')
     }
 
-#Determine Probabilities
-def generateComparison(dsImgFeatures):
-    #loop over retrieved pickles
-    
-
 #Retrieve Pickles
 def retrievePickles(sTableName):
     table = dbResource.Table(sTableName)
