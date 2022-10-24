@@ -10,7 +10,6 @@ import base64
 from base64 import b64encode
 from datetime import datetime
 
-
 #load environment variables
 sEventBusName = os.environ['EventBus_Name']
 sImageFeaturesTableName = os.environ['ImageFeaturesTable']
