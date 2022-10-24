@@ -21,25 +21,35 @@ dbResource = boto3.resource('dynamodb')
 def lambda_handler(event, context):
     print(json.dumps(event))
     
-    dsImgFeatures = retrievePickles(sImageFeaturesTableName)
-    dsComparisonResults = generateComparison(dsImgFeatures)
+    #Search Logic
+    feature_list = []
+    img_list = []
     
+    dsImgFeatures = retrievePickles(sImageFeaturesTableName)
+
+    for row in dsImgFeatures:
+        feature_list.append(DeVectorize(row["Pickle"]))
+        img_list.append(row["AssetId"])
+
+    neighbors = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='euclidean').fit(feature_list)
+
+    scores_dump = base64.b64encode(pickle.dumps(feature_list))
+    img_dump = base64.b64encode(pickle.dumps(img_list))
+    
+    random_index = 75
+    distances, indices = neighbors.kneighbors([feature_list[random_index]])
     
     #return the content.
     return {
         'statusCode': 200,
         'scores' : scores_dump,
+        'images' : img_dump,
         'body': json.dumps('Pickles have been created!')
     }
 
 #Determine Probabilities
 def generateComparison(dsImgFeatures):
     #loop over retrieved pickles
-    for row in dsImgFeatures:
-        vectors.append(DeVectorize(row["Pickle"]))
-        documents.append(row["AssetId"])
-
-    neighbors = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='euclidean').fit(feature_list)
     
 
 #Retrieve Pickles
