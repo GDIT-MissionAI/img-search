@@ -31,7 +31,7 @@ def lambda_handler(event, context):
     i = 0
     iAssetIdIndex = -1 #store index of matching Asset Id
     for row in dsImgFeatures:
-        feature_list.append(DeVectorize(row["Pickle"]))
+        feature_list.append(DeVectorize(row["Pickled"]))
         img_list.append(row["AssetId"])
         
         if row["AssetId"] == event.get("SearchAssetId"):
