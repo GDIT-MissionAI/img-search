@@ -43,6 +43,8 @@ def lambda_handler(event, context):
     distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
     
     #debug
+    print("Images")
+    print(img_list)
     print("Distances")
     print(distances)
     print("Indices")
@@ -59,7 +61,7 @@ def lambda_handler(event, context):
         'images' : imgs_dump,
         'distances' : distances_dump,
         'indices' : indices_dump,
-        'body': json.dumps('Pickles have been created!')
+        'body': json.dumps('Image Search Results Are Complete')
     }
 
 #Retrieve Pickles
