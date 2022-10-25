@@ -73,8 +73,8 @@ def retrievePickles(sTableName):
         #response = kwargs.get('table').scan(ExclusiveStartKey=response['LastEvaluatedKey'])
         response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
         data.extend(response['Items'])
-    print("pickles list")
-    print(data)
+#    print("pickles list")
+#    print(data)
     return data
 
 def DeVectorize(sContent):
@@ -85,23 +85,17 @@ def DeVectorize(sContent):
     #serialized_embedding = pickle.loads(base64.b64decode(sContent))
     
     #print(sContent)
-    print(type(sContent))
+#    print(type(sContent))
     bContent = bytes(sContent)
     #print(base64.b64decode(sContent))
     #print(type(base64.b64decode(sContent)))
     
     #serialized_embedding = pickle.loads(base64.b64decode(sContent))
-#    serialized_embedding = pickle.loads(sContent)
-
-#    sContent = sContent[2:len(sContent)-1]
-#    print(sContent)
-#    sContent2 = bytes(sContent, 'utf-8')
-#    print(sContent2)
     sContent3 = base64.b64decode(bContent)
-    print("decoded")
-    print(sContent3)
-    print("pickle load")
+#    print("decoded")
+#    print(sContent3)
+#    print("pickle load")
     serialized_embedding = pickle.loads(sContent3)
-    print(serialized_embedding)
+#    print(serialized_embedding)
     
     return serialized_embedding
