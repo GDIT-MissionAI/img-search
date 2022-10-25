@@ -54,6 +54,7 @@ def lambda_handler(event, context):
     
     for i in indices:
         print(np.array(img_list)[i])
+        # + ": " + format(np.array(distances)[i], '.8f')
     
     imgs_dump = base64.b64encode(pickle.dumps(img_list))
     features_dump = base64.b64encode(pickle.dumps(feature_list))
