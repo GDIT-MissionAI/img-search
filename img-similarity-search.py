@@ -49,6 +49,9 @@ def lambda_handler(event, context):
     print(distances)
     print("Indices")
     print(indices)
+    print("Closest Matches")
+    for i in indices:
+        print(img_list[i])
     
     imgs_dump = base64.b64encode(pickle.dumps(img_list))
     features_dump = base64.b64encode(pickle.dumps(feature_list))
