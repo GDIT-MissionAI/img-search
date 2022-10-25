@@ -84,17 +84,18 @@ def DeVectorize(sContent):
     
     #print(sContent)
     print(type(sContent))
+    bContent = bytes(sContent)
     #print(base64.b64decode(sContent))
     #print(type(base64.b64decode(sContent)))
     
     #serialized_embedding = pickle.loads(base64.b64decode(sContent))
 #    serialized_embedding = pickle.loads(sContent)
 
-    sContent = sContent[2:len(sContent)-1]
-    print(sContent)
-    sContent2 = bytes(sContent, 'utf-8')
-    print(sContent2)
-    sContent3 = base64.b64decode(sContent)
+#    sContent = sContent[2:len(sContent)-1]
+#    print(sContent)
+#    sContent2 = bytes(sContent, 'utf-8')
+#    print(sContent2)
+    sContent3 = base64.b64decode(bContent)
     print("decoded")
     print(sContent3)
     print("pickle load")
