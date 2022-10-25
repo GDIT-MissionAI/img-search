@@ -9,6 +9,7 @@ import botocore
 import base64
 from base64 import b64encode
 from datetime import datetime
+import numpy as np
 
 #load environment variables
 sEventBusName = os.environ['EventBus_Name']
@@ -50,8 +51,9 @@ def lambda_handler(event, context):
     print("Indices")
     print(indices)
     print("Closest Matches")
+    
     for i in indices:
-        print(img_list[i])
+        print(np.array(img_list)[i])
     
     imgs_dump = base64.b64encode(pickle.dumps(img_list))
     features_dump = base64.b64encode(pickle.dumps(feature_list))
