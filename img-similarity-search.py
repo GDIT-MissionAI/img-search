@@ -79,7 +79,7 @@ def retrievePickles(sTableName):
 
 def DeVectorize(sContent):
     # convert document to vector of word embeddings
-    print("Decode")
+#    print("Decode")
     #print(sContent)
     #print(base64.b64decode(sContent))
     #serialized_embedding = pickle.loads(base64.b64decode(sContent))
