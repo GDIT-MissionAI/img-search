@@ -48,7 +48,7 @@ def lambda_handler(event, context):
     print("Indices")
     print(indices)
     
-    imgs_dump = base64.b64encode(pickle.dumps(indices))
+    imgs_dump = base64.b64encode(pickle.dumps(img_list))
     features_dump = base64.b64encode(pickle.dumps(feature_list))
     distances_dump = base64.b64encode(pickle.dumps(distances))
     indices_dump = base64.b64encode(pickle.dumps(indices))
@@ -56,7 +56,7 @@ def lambda_handler(event, context):
     #return the content.
     return {
         'statusCode': 200,
-        'images' : img_dump,
+        'images' : imgs_dump,
         'distances' : distances_dump,
         'indices' : indices_dump,
         'body': json.dumps('Pickles have been created!')
