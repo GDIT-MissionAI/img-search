@@ -21,6 +21,7 @@ dbResource = boto3.resource('dynamodb')
 def lambda_handler(event, context):
     print(json.dumps(event))
     sSearchAssetId = event.get("SearchAssetId")
+    iNeighbors = event.get("Neighbors")
     print("Search Asset Id: " + sSearchAssetId)
     
     #Search Logic
@@ -31,45 +32,58 @@ def lambda_handler(event, context):
 
     i = 0
     iAssetIdIndex = -1 #store index of matching Asset Id
+    
     for row in dsImgFeatures:
         feature_list.append(DeVectorize(row["Pickled"]))
         img_list.append(row["AssetId"])
-        
+
         if row["AssetId"] == event.get("SearchAssetId"):
             iAssetIdIndex = i
-        
+
         i = i + 1
 
-    neighbors = NearestNeighbors(n_neighbors=5, algorithm='brute', metric='euclidean').fit(feature_list)
-    distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
-    
-    #debug
-    print("Images")
-    print(img_list)
-    print("Distances")
-    print(distances)
-    print("Indices")
-    print(indices)
-    print("Closest Matches")
-    
-    for i in indices:
-        print(np.array(img_list)[i])
-        # + ": " + format(np.array(distances)[i], '.8f')
-    
-    imgs_dump = base64.b64encode(pickle.dumps(img_list))
-    features_dump = base64.b64encode(pickle.dumps(feature_list))
-    distances_dump = base64.b64encode(pickle.dumps(distances))
-    indices_dump = base64.b64encode(pickle.dumps(indices))
-    
-    #return the content.
-    return {
-        'statusCode': 200,
-        'images' : imgs_dump,
-        'distances' : distances_dump,
-        'indices' : indices_dump,
-        'body': json.dumps('Image Search Results Are Complete')
-    }
+    #if an image is found, i will be larger than -1.
+    if i > -1:
+        neighbors = NearestNeighbors(n_neighbors=iNeighbors, algorithm='brute', metric='euclidean').fit(feature_list)
+        distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
 
+        #debug
+        print("Images")
+        print(img_list)
+        print("Distances")
+        print(distances)
+        print("Indices")
+        print(indices)
+        print("Closest Matches")
+
+        for i in indices:
+            print(np.array(img_list)[i])
+            # + ": " + format(np.array(distances)[i], '.8f')
+
+        imgs_dump = base64.b64encode(pickle.dumps(img_list))
+        features_dump = base64.b64encode(pickle.dumps(feature_list))
+        distances_dump = base64.b64encode(pickle.dumps(distances))
+        indices_dump = base64.b64encode(pickle.dumps(indices))
+
+        #return the content.
+        return {
+            'statusCode': 200,
+            'imageStatus': 1,
+            'images' : imgs_dump,
+            'distances' : distances_dump,
+            'indices' : indices_dump,
+            'body': json.dumps('Image Search Results Are Complete')
+        }
+        
+     else:
+        iImgStatus = 0 
+        #return the content.
+        return {
+            'statusCode': 200,
+            'imageStatus': 0,
+            'body': json.dumps('Image Search Results Are Complete! Comparison Image Not Found! Please wait and try again')
+        }
+        
 #Retrieve Pickles
 def retrievePickles(sTableName):
     table = dbResource.Table(sTableName)
