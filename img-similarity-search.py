@@ -66,7 +66,6 @@ def lambda_handler(event, context):
     #return the content.
     return {
         'statusCode': 200,
-        'searchImageExists': 1 if iAssetIdIndex > -1 else 0,
         'images' : imgs_dump,
         'distances' : distances_dump,
         'indices' : indices_dump,
