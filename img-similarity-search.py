@@ -19,61 +19,72 @@ sImageFeaturesTableName = os.environ['ImageFeaturesTable']
 dbResource = boto3.resource('dynamodb')
 
 def lambda_handler(event, context):
-    print(json.dumps(event))
-    sSearchAssetId = event.get("SearchAssetId")
-    iNeighbors = event.get("Neighbors")
-    print("Search Asset Id: " + sSearchAssetId)
+    try:
+        print(json.dumps(event))
+        sSearchAssetId = event.get("SearchAssetId")
+        iNeighbors = event.get("Neighbors")
+        print("Search Asset Id: " + sSearchAssetId)
     
-    #Search Logic
-    feature_list = []
-    img_list = []
+        #Search Logic
+        feature_list = []
+        img_list = []
     
-    dsImgFeatures = retrievePickles(sImageFeaturesTableName)
+        dsImgFeatures = retrievePickles(sImageFeaturesTableName)
 
-    i = 0
-    iAssetIdIndex = -1 #store index of matching Asset Id
+        i = 0
+        iAssetIdIndex = -1 #store index of matching Asset Id
     
-    for row in dsImgFeatures:
-        feature_list.append(DeVectorize(row["Pickled"]))
-        img_list.append(row["AssetId"])
+        for row in dsImgFeatures:
+            feature_list.append(DeVectorize(row["Pickled"]))
+            img_list.append(row["AssetId"])
 
-        if row["AssetId"] == event.get("SearchAssetId"):
-            iAssetIdIndex = i
+            if row["AssetId"] == event.get("SearchAssetId"):
+                iAssetIdIndex = i
 
-        i = i + 1
+            i = i + 1
+            
+        if iAssetIdIndex < 0:
+            raise Exception('Search Image was not found in vector list! Please retry')
 
-    neighbors = NearestNeighbors(n_neighbors=iNeighbors, algorithm='brute', metric='euclidean').fit(feature_list)
-    distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
+        neighbors = NearestNeighbors(n_neighbors=iNeighbors, algorithm='brute', metric='euclidean').fit(feature_list)
+        distances, indices = neighbors.kneighbors([feature_list[iAssetIdIndex]])
 
-    #debug
-    print("Images")
-    print(img_list)
-    print("Distances")
-    print(distances)
-    print("Indices")
-    print(indices)
-    print("Closest Matches")
+        #debug
+        print("Images")
+        print(img_list)
+        print("Distances")
+        print(distances)
+        print("Indices")
+        print(indices)
+        print("Closest Matches")
 
-    for i in indices:
-        print(np.array(img_list)[i])
-        # + ": " + format(np.array(distances)[i], '.8f')
+        for i in indices:
+            print(np.array(img_list)[i])
+            # + ": " + format(np.array(distances)[i], '.8f')
 
-    imgs_dump = base64.b64encode(pickle.dumps(img_list))
-    features_dump = base64.b64encode(pickle.dumps(feature_list))
-    distances_dump = base64.b64encode(pickle.dumps(distances))
-    indices_dump = base64.b64encode(pickle.dumps(indices))
+        imgs_dump = base64.b64encode(pickle.dumps(img_list))
+        features_dump = base64.b64encode(pickle.dumps(feature_list))
+        distances_dump = base64.b64encode(pickle.dumps(distances))
+        indices_dump = base64.b64encode(pickle.dumps(indices))
 
-    #return the content.
+        #return the content.
+        return {
+            'statusCode': 200,
+            'images' : imgs_dump,
+            'distances' : distances_dump,
+            'indices' : indices_dump,
+            'body': json.dumps('Image Search Results Are Complete')
+        }
+    except Exception as e:
+        return exception_handler(e)
+
+def exception_handler(e):
+    status_code = 400
     return {
-        'statusCode': 200,
-        'searchImageExists': 1 if iAssetIdIndex > -1 else 0,
-        'images' : imgs_dump,
-        'distances' : distances_dump,
-        'indices' : indices_dump,
-        'body': json.dumps('Image Search Results Are Complete')
-    }
-        
-        
+        'statusCode': status_code,
+        'body': json.dumps(str(e))
+    }    
+    
 #Retrieve Pickles
 def retrievePickles(sTableName):
     table = dbResource.Table(sTableName)
