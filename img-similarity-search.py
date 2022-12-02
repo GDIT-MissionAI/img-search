@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     try:
         print(json.dumps(event))
         sSearchAssetId = event.get("SearchAssetId")
-        iNeighbors = event.get("Neighbors")
+        iNeighbors = int(event.get("Neighbors"))
         print("Search Asset Id: " + sSearchAssetId)
     
         #Search Logic
