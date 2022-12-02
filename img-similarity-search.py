@@ -81,6 +81,7 @@ def lambda_handler(event, context):
 
 def exception_handler(e):
     status_code = 400
+    print(json.dumps(str(e)))
     return {
         'statusCode': status_code,
         'test': 'hit error'
