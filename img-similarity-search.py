@@ -43,7 +43,7 @@ def lambda_handler(event, context):
 
             i = i + 1
             
-        if iAssetIdIndex < 0:
+        if int(iAssetIdIndex) < int(0):
             raise Exception('Search Image was not found in vector list! Please retry')
 
         neighbors = NearestNeighbors(n_neighbors=iNeighbors, algorithm='brute', metric='euclidean').fit(feature_list)
