@@ -43,6 +43,7 @@ def lambda_handler(event, context):
 
             i = i + 1
  
+        print(iAssetIdIndex)
         print(type(iAssetIdIndex))
         print(type(0))
 #        if int(iAssetIdIndex) < int(0):
