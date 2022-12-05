@@ -22,7 +22,12 @@ def lambda_handler(event, context):
     try:
         print(json.dumps(event))
         sSearchAssetId = event.get("SearchAssetId")
-        iNeighbors = int(event.get("Neighbors"))
+        
+        if event.get("Neighbors") is None:
+            iNeighbors = 5
+        else:
+            iNeighbors = int(event.get("Neighbors"))
+            
         print("Search Asset Id: " + sSearchAssetId)
     
         #Search Logic
